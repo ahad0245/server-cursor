@@ -21,7 +21,22 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString() });
 });
+import express from "express";
+import { syncFromCEIPAL } from "./ceipal.js";
 
+const app = express();
+
+app.get("/api/sync", async (req, res) => {
+  console.log("CRON TRIGGERED:", new Date().toISOString());
+
+  try {
+    const result = await syncFromCEIPAL();
+    res.json({ success: true, imported: result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
 // Get list of jobs
 app.get('/api/jobs', async (req, res) => {
   try {
